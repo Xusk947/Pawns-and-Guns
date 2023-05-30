@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ca036ff375a40f242b643f9333f3efed
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - highlightSprite: {fileID: 21300000, guid: b90bef52205ccf1408a07d6620b21235, type: 3}
+  - PawnDeath: {fileID: 481351793105812801, guid: faa022b4616ec49408acef91f1d8d1d6, type: 3}
+  - cell: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
