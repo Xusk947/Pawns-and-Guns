@@ -11,9 +11,8 @@ namespace PawnsAndGuns.Pawns
     {
         public static Dictionary<Color, List<Pawn>> Pawns = new Dictionary<Color, List<Pawn>>();
 
-        public Sprite highlightSprite;
-        public ParticleSystem PawnDeath;
-
+        [SerializeField]
+        private PawnSO _type;
         public Color Team
         {
             get { return _team; }
@@ -25,14 +24,15 @@ namespace PawnsAndGuns.Pawns
         private List<GameObject> _highlighters;
         private SpriteRenderer _spriteRenderer;
 
-        private List<Vector2Int> _moves;
+        private List<MoveWay> _moveWays;
         private Color _team;
 
         private void Awake()
         {
             _highlighters = new List<GameObject>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _moves = GetMoves();
+            _spriteRenderer.sprite = _type.Sprite;
+            _moveWays = _type.Moves;
         }
 
         public virtual void OnSelect()
@@ -42,16 +42,33 @@ namespace PawnsAndGuns.Pawns
 
         public bool CanMoveAt(int x, int y)
         {
-            foreach(Vector2Int move in _moves)
+            foreach(MoveWay moveWay in _moveWays)
             {
-                int moveX = cell.x + move.x;
-                int moveY = cell.y + move.y;
+                for (int i = 1; i < moveWay.Length + 1; i++)
+                {
+                    int moveX = cell.x + moveWay.Way.x * 1;
+                    int moveY = cell.y + moveWay.Way.y * 1;
 
-                if (x != moveX || y != moveY) continue;
-                Cell targetCell = Gameboard.Instance.GetCell(x, y);
-                if (IsAvailableCell(targetCell)) return true;
+                    if (x != moveX || y != moveY) continue;
+
+                    Cell targetCell = Gameboard.Instance.GetCell(x, y);
+                    if (targetCell != null && targetCell.Pawn != null)
+                    {
+                        if (IsAvailableCell(targetCell))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    } else if (IsAvailableCell(targetCell))
+                    {
+                        return true;
+                    }
+                }
             }
-            return false;
+            return true;
         }
 
         public void MoveTo(int x, int y)
@@ -78,34 +95,28 @@ namespace PawnsAndGuns.Pawns
             _spriteRenderer.material.color = new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, 1f);
             ClearHighlights();
         }
-
-        protected virtual List<Vector2Int> GetMoves()
-        {
-            return new List<Vector2Int> { 
-                new Vector2Int(1, 0),
-                new Vector2Int(0, 1),
-                new Vector2Int(-1, 0),
-                new Vector2Int(0, -1),
-                new Vector2Int(1, 3),
-            };
-        }
-
         private void Highlight()
         {
             _spriteRenderer.material.color = new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, .5f);
 
-            for (int i = 0; i < _moves.Count; i++) { 
-                Vector2Int move = _moves[i];
-
-                Cell moveCell = Gameboard.Instance.GetCell(cell.x + move.x, cell.y + move.y);
-
-                if (!IsAvailableCell(moveCell)) continue;
-                if (moveCell.Pawn != null && moveCell.Pawn.Team != Team)
+            for (int i = 0; i < _moveWays.Count; i++) { 
+                MoveWay moveWay = _moveWays[i];
+                for(int k = 1; k < moveWay.Length + 1; k++)
                 {
-                    SpawnHighlightGameObject(moveCell.x, moveCell.y, moveCell.Pawn.Team - new Color(0, 0, 0, .5f));
-                } else
-                {
-                    SpawnHighlightGameObject(moveCell.x, moveCell.y, Team - new Color(0, 0, 0, .5f));
+                    Cell moveCell = Gameboard.Instance.GetCell(cell.x + moveWay.Way.x * k, cell.y + moveWay.Way.y * k);
+
+                    if (!IsAvailableCell(moveCell)) continue;
+                    if (moveCell.Pawn != null)
+                    {
+                        if (moveCell.Pawn.Team != Team)
+                        {
+                            SpawnHighlightGameObject(moveCell.x, moveCell.y, moveCell.Pawn.Team - new Color(0, 0, 0, .5f));
+                        }
+                        break;
+                    } else
+                    {
+                        SpawnHighlightGameObject(moveCell.x, moveCell.y, Team - new Color(0, 0, 0, .5f));
+                    }
                 }
             }
         }
@@ -125,7 +136,7 @@ namespace PawnsAndGuns.Pawns
             highlight.transform.position = new Vector3(x, y, transform.position.z);
 
             SpriteRenderer spriteRenderer = highlight.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = highlightSprite;
+            spriteRenderer.sprite = Content.Highlight;
             spriteRenderer.material.color = color;
 
             _highlighters.Add(highlight);

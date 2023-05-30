@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1215331262788470622}
   - component: {fileID: 4895253111823526873}
   - component: {fileID: 3690076396334939641}
-  - component: {fileID: 4988059570825498013}
+  - component: {fileID: -774451926598052845}
   m_Layer: 0
   m_Name: KingPawn
   m_TagString: Untagged
@@ -131,7 +131,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.909362, y: 1.7046083}
   m_EdgeRadius: 0
---- !u!114 &4988059570825498013
+--- !u!114 &-774451926598052845
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,5 +143,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca036ff375a40f242b643f9333f3efed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightSprite: {fileID: 21300000, guid: efda93dfff11c4447b04b2627838d7e3, type: 3}
+  _type: {fileID: 11400000, guid: 6e0c95d374fafea4aa1c26c0b8c25434, type: 2}
   cell: {fileID: 0}

@@ -88,7 +88,7 @@ namespace PawnsAndGuns.Game
             pawn.Team = PlayerTeam;
             GetCell(1, 8).Pawn = pawn;
 
-            Pawn pawn1 = Instantiate(Pawn);
+            Pawn pawn1 = Instantiate(Content.King);
             pawn1.Team = PlayerTeam;
             GetCell(1, 9).Pawn = pawn1;
             for (int i =0; i < 10; i++)
