@@ -7,7 +7,7 @@ namespace PawnsAndGuns.Game
     public class GameboardController : MonoBehaviour
     {
         public static GameboardController Instance;
-
+        
         public Controller CurrentController { get => _currentController; }
 
         private List<Controller> _controllers;

@@ -50,7 +50,6 @@ namespace PawnsAndGuns.Pawns
                     int moveX = cell.x + moveWay.Way.x * i;
                     int moveY = cell.y + moveWay.Way.y * i;
 
-
                     Cell targetCell = Gameboard.Instance.GetCell(x, y);
                     Cell checkedCell = Gameboard.Instance.GetCell(moveX, moveY);
 
@@ -78,7 +77,13 @@ namespace PawnsAndGuns.Pawns
             this.cell.Pawn = null;
             Cell cell = Gameboard.Instance.GetCell(x, y);
 
-            transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack).OnComplete(() => {
+            var sequence = DOTween.Sequence();
+
+
+            sequence
+                .Join(transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack))
+                .Join(transform.DOScale(new Vector3(1, 1, 1), .5f).SetEase(Ease.InFlash))
+                .OnComplete(() => {
                 if (cell.Pawn != null)
                 {
                     cell.DestroyPawn(this);
@@ -93,12 +98,12 @@ namespace PawnsAndGuns.Pawns
 
         public virtual void OnDeselect()
         {
-            _spriteRenderer.material.color = new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, 1f);
+            _spriteRenderer.material.DOColor(new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, 1f), .25f);
             ClearHighlights();
         }
         private void Highlight()
         {
-            _spriteRenderer.material.color = new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, .5f);
+            _spriteRenderer.material.DOColor(new Color(_spriteRenderer.material.color.r, _spriteRenderer.material.color.g, _spriteRenderer.material.color.b, .5f), .25f);
 
             for (int i = 0; i < _moveWays.Count; i++) { 
                 MoveWay moveWay = _moveWays[i];
@@ -136,7 +141,8 @@ namespace PawnsAndGuns.Pawns
             GameObject highlight = new GameObject("highlight");
             highlight.transform.SetParent(transform);
             highlight.transform.position = new Vector3(x, y, transform.position.z);
-
+            highlight.transform.localScale = Vector3.zero;
+            highlight.transform.DOScale(new Vector3(.5f, .5f, .5f), .25f);
             SpriteRenderer spriteRenderer = highlight.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = Content.Highlight;
             spriteRenderer.material.color = color;
@@ -149,7 +155,9 @@ namespace PawnsAndGuns.Pawns
         {
             foreach (GameObject highlight in _highlighters)
             {
-                Destroy(highlight);
+                highlight.transform.DOScale(Vector3.zero, 0.25f).OnComplete(() => { 
+                    Destroy(highlight);
+                });
             }
             _highlighters.Clear();
         }

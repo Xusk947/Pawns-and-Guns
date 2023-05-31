@@ -1,18 +1,22 @@
 using PawnsAndGuns.Pawns;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PawnsAndGuns.Game
 {
     public class Gameboard : MonoBehaviour
     {
-        public static Vector2Int GAME_BOARD_SIZE = new Vector2Int(11, 17);
+        public static Vector2Int GAME_BOARD_SIZE = new Vector2Int(128, 5);
         public static Gameboard Instance;
 
-        public Sprite WhiteSprite, BlackSprite;
+        public Sprite TileSprite;
+        public Color WhiteTileColor, BlackTileColor;
 
         public Color PlayerTeam;
         public Color EnemyTeam;
+        [SerializeField]
+        public List<Vector2Int> _cellsToSpawn = new List<Vector2Int>();
 
         public Pawn Pawn;
 
@@ -29,19 +33,31 @@ namespace PawnsAndGuns.Game
             {
                 for (int y = 0; y < GAME_BOARD_SIZE.y; y++)
                 {
-                    GameObject gameObject = new GameObject($"Cell({x}:{y})");
-                    gameObject.transform.SetParent(transform);
-                    gameObject.transform.position = new Vector2(x, y);
-
-                    Cell cell = gameObject.AddComponent<Cell>();
-                    bool isWhite = (x + y) % 2 == 0;
-
-                    cell.SpriteRenderer.sprite = isWhite ? WhiteSprite : BlackSprite;
-                    cell.x = x;
-                    cell.y = y;
-                    _cells[x, y] = cell;
+                    _cells[x, y] = SpawnCell(x, y);
                 }
             }
+
+            Pawn pawn = Instantiate(Content.King);
+            pawn.Team = PlayerTeam;
+            _cells[2, 2].Pawn = pawn;
+            FollowCamera.Instance.transform.position = pawn.transform.position - new Vector3(0, 0, 10);
+        }
+
+        private Cell SpawnCell(int x, int y)
+        {
+            GameObject gameObject = new GameObject($"Cell({x}:{y})");
+            gameObject.transform.SetParent(transform);
+            gameObject.transform.position = new Vector2(x, y);
+
+            Cell cell = gameObject.AddComponent<Cell>();
+            cell.SpriteRenderer.sprite = TileSprite;
+            bool isWhite = (x + y) % 2 == 0;
+            cell.SpriteRenderer.material.color = isWhite ? WhiteTileColor : BlackTileColor;
+            cell.SpriteRenderer.material.color -= new Color(0, 0, 0, .2f);
+            cell.x = x;
+            cell.y = y;
+
+            return cell;
         }
 
         public static Vector2Int MouseTile
@@ -80,23 +96,8 @@ namespace PawnsAndGuns.Game
 
         private void Start()
         {
-            Camera.main.transform.position = new Vector3(GAME_BOARD_SIZE.x / 2, GAME_BOARD_SIZE.y / 2, -10);
             SpawnBoard();
             gameObject.AddComponent<GameboardController>();
-
-            Pawn pawn = Instantiate(Pawn);
-            pawn.Team = PlayerTeam;
-            GetCell(1, 8).Pawn = pawn;
-
-            Pawn pawn1 = Instantiate(Content.King);
-            pawn1.Team = PlayerTeam;
-            GetCell(1, 9).Pawn = pawn1;
-            for (int i =0; i < 10; i++)
-            {
-                Pawn pawn2 = Instantiate(Pawn);
-                pawn2.Team = EnemyTeam;
-                GetCell(1 + i, 10).Pawn = pawn2;
-            }
         }
 
         private void OnDrawGizmos()
@@ -104,6 +105,14 @@ namespace PawnsAndGuns.Game
             Gizmos.color = Color.green;
             Vector2Int mousePosition = MouseTile;
             Gizmos.DrawWireCube(new Vector3(mousePosition.x, mousePosition.y), new Vector3(1, 1, 1));
+
+            for (int i = 0; i < _cellsToSpawn.Count; i++)
+            {
+                Vector2Int pos = _cellsToSpawn[i];
+                bool isWhite = (pos.x + pos.y) % 2 == 0;
+                Gizmos.color = isWhite ? Color.white : Color.black;
+                Gizmos.DrawWireCube(new Vector3(pos.x, pos.y), new Vector3(1, 1, 1));
+            }
         }
     }
 }
