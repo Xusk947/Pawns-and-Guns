@@ -12,5 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa00451a933a0c5439bd6868988fa207, type: 3}
   m_Name: KingPawn
   m_EditorClassIdentifier: 
-  Moves: []
-  Sprite: {fileID: 0}
+  Moves:
+  - Way: {x: 1, y: 0}
+    Length: 1
+  - Way: {x: 0, y: 1}
+    Length: 1
+  - Way: {x: -1, y: 0}
+    Length: 1
+  - Way: {x: 0, y: -1}
+    Length: 1
+  - Way: {x: 0, y: 0}
+    Length: 1
+  - Way: {x: 1, y: 1}
+    Length: 1
+  - Way: {x: -1, y: -1}
+    Length: 1
+  - Way: {x: -1, y: 1}
+    Length: 1
+  - Way: {x: 1, y: -1}
+    Length: 1
+  Sprite: {fileID: 21300000, guid: efda93dfff11c4447b04b2627838d7e3, type: 3}

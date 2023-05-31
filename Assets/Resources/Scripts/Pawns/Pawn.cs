@@ -37,6 +37,7 @@ namespace PawnsAndGuns.Pawns
 
         public virtual void OnSelect()
         {
+            FollowCamera.Instance.target = gameObject;
             Highlight();
         }
 
@@ -46,29 +47,29 @@ namespace PawnsAndGuns.Pawns
             {
                 for (int i = 1; i < moveWay.Length + 1; i++)
                 {
-                    int moveX = cell.x + moveWay.Way.x * 1;
-                    int moveY = cell.y + moveWay.Way.y * 1;
+                    int moveX = cell.x + moveWay.Way.x * i;
+                    int moveY = cell.y + moveWay.Way.y * i;
 
-                    if (x != moveX || y != moveY) continue;
 
                     Cell targetCell = Gameboard.Instance.GetCell(x, y);
-                    if (targetCell != null && targetCell.Pawn != null)
+                    Cell checkedCell = Gameboard.Instance.GetCell(moveX, moveY);
+
+                    if (targetCell == null) break;
+                    if (x != moveX || y != moveY)
                     {
-                        if (IsAvailableCell(targetCell))
-                        {
-                            return true;
-                        }
-                        else
+                        if (checkedCell != null && checkedCell.Pawn != null)
                         {
                             break;
                         }
-                    } else if (IsAvailableCell(targetCell))
-                    {
-                        return true;
+                        continue;
                     }
+
+                    if (!IsAvailableCell(targetCell)) continue;
+                    if (targetCell.Pawn == null && moveWay.CanEatOnly) continue;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         public void MoveTo(int x, int y)
@@ -106,6 +107,7 @@ namespace PawnsAndGuns.Pawns
                     Cell moveCell = Gameboard.Instance.GetCell(cell.x + moveWay.Way.x * k, cell.y + moveWay.Way.y * k);
 
                     if (!IsAvailableCell(moveCell)) continue;
+                    if (moveCell.Pawn == null && moveWay.CanEatOnly) continue;
                     if (moveCell.Pawn != null)
                     {
                         if (moveCell.Pawn.Team != Team)

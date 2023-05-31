@@ -16,6 +16,7 @@ namespace PawnsAndGuns.Pawns
     public class MoveWay
     {
         public Vector2Int Way;
+        public bool CanEatOnly;
         [Description("Leave -1 for inf")]
         public int Length;
     }
