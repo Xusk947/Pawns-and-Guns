@@ -1,6 +1,9 @@
 using DG.Tweening;
+using PawnsAndGuns.Controllers;
 using PawnsAndGuns.Game.Cells;
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PawnsAndGuns.Game.Pawns
@@ -28,19 +31,21 @@ namespace PawnsAndGuns.Game.Pawns
         }
 
         public Cell cell;
+        public bool Killed;
 
         private List<GameObject> _highlighters;
         private SpriteRenderer _spriteRenderer;
 
+        public List<MoveWay> MoveWays { get { return _moveWays; } }
         private List<MoveWay> _moveWays;
         private Color _team = default;
         private AudioSource _audioSource;
+
 
         private void Awake()
         {
             _highlighters = new List<GameObject>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _spriteRenderer.sprite = _type.Sprite;
             _spriteRenderer.sortingLayerName = "Pawns";
             _moveWays = _type.Moves;
             _audioSource = gameObject.AddComponent<AudioSource>();
@@ -85,15 +90,15 @@ namespace PawnsAndGuns.Game.Pawns
 
         public void MoveTo(int x, int y)
         {
-            GameboardController.Instance.CurrentController.CanMove = false;
+            Controller controller = Controller.GetController(Team);
+
+            controller.CanMove = false;
+
             this.cell.Pawn = null;
             Cell cell = Gameboard.Instance.GetCell(x, y);
-
             var sequence = DOTween.Sequence();
 
-
-            _audioSource.clip = cell.Pawn == null ? Content.AudioClipMove : Content.AudioClipKill;
-            _audioSource.PlayDelayed(.1f);
+            _audioSource.clip = Content.AudioClipMove;
 
             sequence
                 .Join(transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack))
@@ -101,15 +106,47 @@ namespace PawnsAndGuns.Game.Pawns
                 .OnComplete(() => {
                     if (cell.Pawn != null)
                     {
-                        cell.DestroyPawn(this);
+                        cell.Pawn.Kill();
                     } else
                     {
-                        GameboardController.Instance.CurrentController.CanMove = true;
-                        cell.Pawn = this;
+                        _audioSource.Play();
                     }
+
+                    cell.Pawn = this;
                     MovePawn(this);
                     OnDeselect();
+                    controller.CanMove = true;
                 });
+            sequence.Play();
+        }
+
+        public void Kill()
+        {
+            ParticleSystem particleSystem = Instantiate(Content.PawnDeath);
+            ParticleSystem.MainModule settings = particleSystem.main;
+
+            settings.startColor = new ParticleSystem.MinMaxGradient(Team);
+            particleSystem.transform.position = transform.position - new Vector3(0, .5f, 0);
+
+            cell.Pawn = null;
+
+            Killed = true;
+
+            var sequence = DOTween.Sequence();
+
+            _audioSource.clip = Content.AudioClipKill;
+            _audioSource.PlayDelayed(.1f);
+
+            sequence
+                .Join(transform.DOShakeRotation(1.5f).SetEase(Ease.InOutBack))
+                .Join(transform.DOShakePosition(1.5f))
+                .Join(transform.DOScale(Vector3.zero, 1.5f).SetEase(Ease.OutBack))
+            .OnComplete(() =>
+            {
+                Destroy(gameObject);
+            });
+
+            sequence.Play();
         }
 
         public virtual void OnDeselect()
@@ -200,7 +237,10 @@ namespace PawnsAndGuns.Game.Pawns
 
         private void OnDestroy()
         {
+            transform.DOPause();
             Pawns[Team].Remove(this);
+            Controller controller = Controller.GetController(Team);
+            if (controller != null) controller.CanMove = true;
         }
     }
 

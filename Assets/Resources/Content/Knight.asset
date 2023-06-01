@@ -10,34 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fa00451a933a0c5439bd6868988fa207, type: 3}
-  m_Name: KingPawn
+  m_Name: Knight
   m_EditorClassIdentifier: 
   Moves:
-  - Way: {x: 1, y: 0}
+  - Way: {x: 2, y: 1}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: 0, y: 1}
+  - Way: {x: 2, y: -1}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: -1, y: 0}
+  - Way: {x: 1, y: 2}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: 0, y: -1}
+  - Way: {x: -1, y: 2}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: 0, y: 0}
+  - Way: {x: -2, y: 1}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: 1, y: 1}
+  - Way: {x: 1, y: -2}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: -1, y: -1}
+  - Way: {x: -1, y: -2}
     CanEatOnly: 0
     Length: 1
-  - Way: {x: -1, y: 1}
-    CanEatOnly: 0
-    Length: 1
-  - Way: {x: 1, y: -1}
+  - Way: {x: -2, y: -1}
     CanEatOnly: 0
     Length: 1
   Sprite: {fileID: 21300000, guid: efda93dfff11c4447b04b2627838d7e3, type: 3}

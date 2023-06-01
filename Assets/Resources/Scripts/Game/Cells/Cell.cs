@@ -1,4 +1,5 @@
 using DG.Tweening;
+using PawnsAndGuns.Controllers;
 using PawnsAndGuns.Game.Pawns;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace PawnsAndGuns.Game.Cells
     {
         public bool Selected;
         public Chunk Chunk;
+
+        public Vector2Int Position { get { return new Vector2Int(x, y); } }
+
         public int x;
         public int y;
 
@@ -49,35 +53,6 @@ namespace PawnsAndGuns.Game.Cells
         {
             if (Pawn != null && Pawn.Team == pawn.Team) return false;
             return true;
-        }
-
-        public void DestroyPawn(Pawn pawn)
-        {
-            ParticleSystem particleSystem = Instantiate(Content.PawnDeath);
-            ParticleSystem.MainModule settings = particleSystem.main;
-
-            settings.startColor = new ParticleSystem.MinMaxGradient(_pawn.Team);
-            particleSystem.transform.position = _pawn.transform.position - new Vector3(0, .5f, 0);
-
-            var sequence = DOTween.Sequence();
-            float xPath = transform.position.x + 10 * Random.Range(-1, 1);
-
-            sequence
-                .Join(_pawn.transform.DOShakeRotation(1.5f).SetEase(Ease.InOutBack))
-                .Join(_pawn.transform.DOShakePosition(1.5f))
-                .Join(_pawn.transform.DOScale(Vector3.zero, 1.5f).SetEase(Ease.OutBack))
-            .OnComplete(() =>
-            {
-                    if (pawn != null)
-                    {
-
-
-                        Destroy(_pawn.gameObject);
-                        Pawn = pawn;
-                    }
-                    GameboardController.Instance.CurrentController.CanMove = true;
-                });
-            sequence.Play();
         }
 
         protected virtual void SetPawn(Pawn pawn)

@@ -18,15 +18,19 @@ namespace PawnsAndGuns.Game
         public Pawn King;
         public Canvas Canvas;
 
-        private void Update()
+        public void SetPawn(int x, int y, Color team, Pawn Instance, string name = "Pawn")
         {
-            if (Input.GetMouseButtonDown(0))
+            Cell cell = GetCell(x, y);
+            if (cell != null)
             {
-                print(GetCell(MouseTile.x, MouseTile.y));
+                Pawn pawn = Instantiate(Instance);
+                pawn.Team = team;
+
+                cell.Pawn = pawn;
             }
         }
 
-        private void SpawnCell<T>(int x, int y) where T : Cell
+        public void SetCell<T>(int x, int y) where T : Cell
         {
             Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
             Chunk chunk = Chunk.GetChunk(chunkPos);
@@ -49,7 +53,6 @@ namespace PawnsAndGuns.Game
             Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
             Chunk chunk = Chunk.GetChunk(chunkPos);
             Vector2Int tilePos = new Vector2Int((x % Chunk.CHUNK_SIZE.x + Chunk.CHUNK_SIZE.x) % Chunk.CHUNK_SIZE.x, (y % Chunk.CHUNK_SIZE.y + Chunk.CHUNK_SIZE.y) % Chunk.CHUNK_SIZE.y);
-            print(tilePos.x + " : " + tilePos.y);
             return chunk.GetCell(tilePos.x, tilePos.y);
         }
 
@@ -92,10 +95,17 @@ namespace PawnsAndGuns.Game
             {
                 for (int y = -height; y < height; y++)
                 {
-                    SpawnCell<Cell>(x, y);
+                    SetCell<Cell>(x, y);
                 }
             }
-            SpawnCell<CheckPointCell>(0, 0);
+            SetCell<CheckPointCell>(0, 0);
+
+            SetPawn(1, 1, EnemyTeam, Content.Pawn);
+            SetPawn(3, 1, EnemyTeam, Content.Knight);
+            SetPawn(5, 1, EnemyTeam, Content.Rook);
+            SetPawn(7, 1, EnemyTeam, Content.Bishop);
+            SetPawn(9, 1, EnemyTeam, Content.Queen);
+            SetPawn(11, 1, EnemyTeam, Content.King);
         }
 
         private void Start()

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3690076396334939641}
   - component: {fileID: -774451926598052845}
   m_Layer: 0
-  m_Name: KingPawn
+  m_Name: King
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

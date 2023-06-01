@@ -485,8 +485,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1806018893
+  m_SortingLayer: 1
   m_SortingOrder: -10
   m_Sprite: {fileID: 21300000, guid: 8573d9dff3af8394691cc118b9ceb5dc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -801,8 +801,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1806018893
+  m_SortingLayer: 1
   m_SortingOrder: -10
   m_Sprite: {fileID: 21300000, guid: d70c6329e8fb67b469e59b060a3c89de, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -901,8 +901,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1806018893
+  m_SortingLayer: 1
   m_SortingOrder: -8
   m_Sprite: {fileID: 21300000, guid: a938e991f81526f4e8d0e5be25e4e143, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -951,7 +951,6 @@ MonoBehaviour:
   PlayerTeam: {r: 0.41568628, g: 0.3372549, b: 1, a: 1}
   EnemyTeam: {r: 1, g: 0.9578349, b: 0.33725488, a: 1}
   NeutralTeam: {r: 0, g: 0, b: 0, a: 0}
-  _cellsToSpawn: []
   King: {fileID: 0}
   Canvas: {fileID: 75825066}
 --- !u!4 &1875873781
@@ -1120,7 +1119,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1945251284}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -5.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

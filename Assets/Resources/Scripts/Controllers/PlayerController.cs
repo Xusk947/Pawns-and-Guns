@@ -12,7 +12,6 @@ namespace PawnsAndGuns.Controllers
 
         private Color _team;
 
-        private int _movePoints;
         private Cell _selected;
         private bool _canMove = true;
 
@@ -20,11 +19,7 @@ namespace PawnsAndGuns.Controllers
         {
             Team = team;
             Pawn.PawnMove += UpdateKingState;
-        }
-
-        public void SelectedToMove(int movePoints)
-        {
-            _movePoints = movePoints * 2; // because PLAYER IS OP
+            Controller.SetController(this);
         }
 
         public void UpdateMovement()
@@ -40,7 +35,6 @@ namespace PawnsAndGuns.Controllers
                     _selected.Deselect();
                     if (_selected.Pawn != null && _selected.Pawn.CanMoveAt(mouseTile.x, mouseTile.y))
                     {
-                        _movePoints -= 1;
                         _selected.Pawn.MoveTo(mouseTile.x, mouseTile.y);
                         canSelectNewTile = false;
                     }
@@ -56,19 +50,12 @@ namespace PawnsAndGuns.Controllers
                     cell.Select();
                     _selected = cell;
                 }
-
-                if (_movePoints <= 0) FinishMove();
             }
         }
 
         private void UpdateKingState(Pawn pawn)
         {
             if (pawn != Gameboard.Instance.King) return;
-        }
-
-        public void FinishMove()
-        {
-            Controller.FinishController(this);
         }
     }
 }

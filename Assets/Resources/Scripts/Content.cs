@@ -22,16 +22,20 @@ namespace PawnsAndGuns
         public static AudioClip TextAppear { get; private set; }
 
 
-        public static Pawn Bishop, King;
+        public static Pawn Pawn, Rook, Knight, Bishop, Queen, King;
         public static void Load()
         {
             PawnDeath = Resources.Load<ParticleSystem>("Content/FX/PawnDeath");
-            Highlight = Resources.Load<Sprite>("Sprites/highlight");
+            Highlight = Resources.Load<Sprite>("Sprites/chess/highlight");
 
-            Bishop = Resources.Load<Pawn>("Content/Pawn");
-            King = Resources.Load<Pawn>("Content/KingPawn");
+            Pawn = Resources.Load<Pawn>("Content/Pawn");
+            Rook = Resources.Load<Pawn>("Content/Rook");
+            Knight = Resources.Load<Pawn>("Content/Knight");
+            Bishop = Resources.Load<Pawn>("Content/Bishop");
+            Queen = Resources.Load<Pawn>("Content/Queen");
+            King = Resources.Load<Pawn>("Content/King");
 
-            Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/chess-board");
+            Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/chess/chess-board");
             TileSprite = sprites[0];
             WallSprite = sprites[1];
 

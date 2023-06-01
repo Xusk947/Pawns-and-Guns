@@ -1,23 +1,36 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PawnsAndGuns.Controllers
 {
     public interface Controller
     {
-
-        public delegate void HandleController(Controller controller);
-        public static event HandleController OnControllerDone;
-
+        private static Dictionary<Color, Controller> Controllers = new Dictionary<Color, Controller>();
+        private static List<Controller> AllControllers = new List<Controller>();
         public Color Team { get; set; }
         public bool CanMove { get; set; }
-        public void SelectedToMove(int movePoints);
-
         public void UpdateMovement();
-        public void FinishMove();
 
-        public static void FinishController(Controller controller)
+        public static void SetController(Controller controller)
         {
-            OnControllerDone?.Invoke(controller);
+            Controllers[controller.Team] = controller;
+            AllControllers.Add(controller);
+        }
+
+        public static void RemoveController(Controller controller)
+        {
+            Controllers.Remove(controller.Team);
+            AllControllers.Remove(controller);
+        }
+
+        public static Controller GetController(Color team)
+        {
+            return Controllers[team];
+        }
+
+        public static List<Controller> GetAllControllers()
+        {
+            return AllControllers;
         }
     }
 }
