@@ -1,4 +1,5 @@
 using PawnsAndGuns.Controllers;
+using PawnsAndGuns.Game.Cells;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,12 +38,22 @@ namespace PawnsAndGuns.Game
             } else
             {
                 _currentController = _controllers[index + 1];
+                _currentController.SelectedToMove(1);
             }
         }
 
         private void Update()
         {
             if (_currentController != null) _currentController.UpdateMovement();
+            if (CheckPointCell.LastCheckPoint != null && Gameboard.Instance.King == null)
+            {
+                CheckPointCell.LastCheckPoint.SpawnKing();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
         }
 
         private void OnDestroy()

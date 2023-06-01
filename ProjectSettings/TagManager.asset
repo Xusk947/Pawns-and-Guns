@@ -53,3 +53,6 @@ TagManager:
   - name: FX
     uniqueID: 3206817395
     locked: 0
+  - name: TXT
+    uniqueID: 2869282415
+    locked: 0

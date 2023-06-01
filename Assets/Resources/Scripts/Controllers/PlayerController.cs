@@ -1,5 +1,6 @@
 using PawnsAndGuns.Game;
-using Unity.VisualScripting;
+using PawnsAndGuns.Game.Cells;
+using PawnsAndGuns.Game.Pawns;
 using UnityEngine;
 
 namespace PawnsAndGuns.Controllers
@@ -18,11 +19,12 @@ namespace PawnsAndGuns.Controllers
         public PlayerController(Color team)
         {
             Team = team;
+            Pawn.PawnMove += UpdateKingState;
         }
 
         public void SelectedToMove(int movePoints)
         {
-            _movePoints = movePoints;
+            _movePoints = movePoints * 2; // because PLAYER IS OP
         }
 
         public void UpdateMovement()
@@ -38,6 +40,7 @@ namespace PawnsAndGuns.Controllers
                     _selected.Deselect();
                     if (_selected.Pawn != null && _selected.Pawn.CanMoveAt(mouseTile.x, mouseTile.y))
                     {
+                        _movePoints -= 1;
                         _selected.Pawn.MoveTo(mouseTile.x, mouseTile.y);
                         canSelectNewTile = false;
                     }
@@ -53,7 +56,14 @@ namespace PawnsAndGuns.Controllers
                     cell.Select();
                     _selected = cell;
                 }
+
+                if (_movePoints <= 0) FinishMove();
             }
+        }
+
+        private void UpdateKingState(Pawn pawn)
+        {
+            if (pawn != Gameboard.Instance.King) return;
         }
 
         public void FinishMove()

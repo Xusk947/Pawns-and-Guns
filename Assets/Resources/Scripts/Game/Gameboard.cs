@@ -1,63 +1,56 @@
-using PawnsAndGuns.Pawns;
-using System.Collections;
-using System.Collections.Generic;
+using PawnsAndGuns.Game.Cells;
+using PawnsAndGuns.Game.Pawns;
+using System;
 using UnityEngine;
 
 namespace PawnsAndGuns.Game
 {
     public class Gameboard : MonoBehaviour
     {
-        public static Vector2Int GAME_BOARD_SIZE = new Vector2Int(128, 5);
         public static Gameboard Instance;
 
-        public Sprite TileSprite;
         public Color WhiteTileColor, BlackTileColor;
 
         public Color PlayerTeam;
         public Color EnemyTeam;
-        [SerializeField]
-        public List<Vector2Int> _cellsToSpawn = new List<Vector2Int>();
+        public Color NeutralTeam;
 
-        public Pawn Pawn;
+        public Pawn King;
+        public Canvas Canvas;
 
-        public Cell[,] Cells
+        private void Update()
         {
-            get { return Cells; }
-        }
-
-        private Cell[,] _cells;
-
-        private void SpawnBoard()
-        {
-            for (int x = 0; x < GAME_BOARD_SIZE.x; x++)
+            if (Input.GetMouseButtonDown(0))
             {
-                for (int y = 0; y < GAME_BOARD_SIZE.y; y++)
-                {
-                    _cells[x, y] = SpawnCell(x, y);
-                }
+                print(GetCell(MouseTile.x, MouseTile.y));
             }
-
-            Pawn pawn = Instantiate(Content.King);
-            pawn.Team = PlayerTeam;
-            _cells[2, 2].Pawn = pawn;
-            FollowCamera.Instance.transform.position = pawn.transform.position - new Vector3(0, 0, 10);
         }
 
-        private Cell SpawnCell(int x, int y)
+        private void SpawnCell<T>(int x, int y) where T : Cell
         {
-            GameObject gameObject = new GameObject($"Cell({x}:{y})");
-            gameObject.transform.SetParent(transform);
-            gameObject.transform.position = new Vector2(x, y);
+            Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
+            Chunk chunk = Chunk.GetChunk(chunkPos);
+            Vector2Int tilePos = new Vector2Int((x % Chunk.CHUNK_SIZE.x + Chunk.CHUNK_SIZE.x) % Chunk.CHUNK_SIZE.x, (y % Chunk.CHUNK_SIZE.y + Chunk.CHUNK_SIZE.y) % Chunk.CHUNK_SIZE.y);
 
-            Cell cell = gameObject.AddComponent<Cell>();
-            cell.SpriteRenderer.sprite = TileSprite;
+            GameObject gameObject = new GameObject($"Cell({tilePos.x}:{tilePos.y})");
+            gameObject.isStatic = true;
+
+            T cell = gameObject.AddComponent<T>();
+
             bool isWhite = (x + y) % 2 == 0;
             cell.SpriteRenderer.material.color = isWhite ? WhiteTileColor : BlackTileColor;
             cell.SpriteRenderer.material.color -= new Color(0, 0, 0, .2f);
-            cell.x = x;
-            cell.y = y;
 
-            return cell;
+            chunk.SetCell(tilePos.x, tilePos.y, cell);
+        }
+
+        public Cell GetCell(int x, int y)
+        {
+            Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
+            Chunk chunk = Chunk.GetChunk(chunkPos);
+            Vector2Int tilePos = new Vector2Int((x % Chunk.CHUNK_SIZE.x + Chunk.CHUNK_SIZE.x) % Chunk.CHUNK_SIZE.x, (y % Chunk.CHUNK_SIZE.y + Chunk.CHUNK_SIZE.y) % Chunk.CHUNK_SIZE.y);
+            print(tilePos.x + " : " + tilePos.y);
+            return chunk.GetCell(tilePos.x, tilePos.y);
         }
 
         public static Vector2Int MouseTile
@@ -78,25 +71,35 @@ namespace PawnsAndGuns.Game
         {
             return new Vector2Int(Mathf.FloorToInt(x + .5f), Mathf.FloorToInt(y + .5f));
         }
-        public Cell GetCell(Vector2Int position)
+
+        public static Vector2Int WorldToChunkPosition(float x, float y)
         {
-            return GetCell(position.x, position.y);
+            int chunkPosX = Mathf.FloorToInt(x / Chunk.CHUNK_SIZE.x);
+            int chunkPosY = Mathf.FloorToInt(y / Chunk.CHUNK_SIZE.y);
+            return new Vector2Int(chunkPosX, chunkPosY);
         }
-        public Cell GetCell(int x, int y)
-        {
-            if (x < 0 || y < 0 || x >= GAME_BOARD_SIZE.x || y >= GAME_BOARD_SIZE.y) return null;
-            return _cells[x, y];
-        }
+
         private void Awake()
         {
             Instance = this;
-            _cells = new Cell[GAME_BOARD_SIZE.x, GAME_BOARD_SIZE.y];
+
             Content.Load();
+
+            int width = 16;
+            int height = 16;
+
+            for (int x = -width; x < width; x++)
+            {
+                for (int y = -height; y < height; y++)
+                {
+                    SpawnCell<Cell>(x, y);
+                }
+            }
+            SpawnCell<CheckPointCell>(0, 0);
         }
 
         private void Start()
         {
-            SpawnBoard();
             gameObject.AddComponent<GameboardController>();
         }
 
@@ -105,14 +108,8 @@ namespace PawnsAndGuns.Game
             Gizmos.color = Color.green;
             Vector2Int mousePosition = MouseTile;
             Gizmos.DrawWireCube(new Vector3(mousePosition.x, mousePosition.y), new Vector3(1, 1, 1));
-
-            for (int i = 0; i < _cellsToSpawn.Count; i++)
-            {
-                Vector2Int pos = _cellsToSpawn[i];
-                bool isWhite = (pos.x + pos.y) % 2 == 0;
-                Gizmos.color = isWhite ? Color.white : Color.black;
-                Gizmos.DrawWireCube(new Vector3(pos.x, pos.y), new Vector3(1, 1, 1));
-            }
+            Vector2Int chunkPosition = WorldToChunkPosition(mousePosition.x, mousePosition.y);
+            Gizmos.DrawWireCube(new Vector3(Chunk.CHUNK_SIZE.x * chunkPosition.x + Chunk.CHUNK_SIZE.x / 2f - .5f, Chunk.CHUNK_SIZE.x * chunkPosition.y + Chunk.CHUNK_SIZE.y / 2f - .5f, 0), new Vector3(Chunk.CHUNK_SIZE.x, Chunk.CHUNK_SIZE.y));
         }
     }
 }
