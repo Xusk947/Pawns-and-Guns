@@ -18,7 +18,7 @@ namespace PawnsAndGuns.Controllers
         public PlayerController(Color team)
         {
             Team = team;
-            Pawn.PawnMove += UpdateKingState;
+            Pawn.PawnMoveEvent += UpdateKingState;
             Controller.SetController(this);
         }
 

@@ -13,11 +13,17 @@ namespace PawnsAndGuns.Game.Pawns
     public class Pawn : MonoBehaviour
     {
         public delegate void OnPawnMove(Pawn pawn);
-        public static event OnPawnMove PawnMove;
+        public static event OnPawnMove PawnMoveEvent;
+        public static event OnPawnMove PawnDestroyEvent;
 
         public static void MovePawn(Pawn pawn)
         {
-            PawnMove?.Invoke(pawn);
+            PawnMoveEvent?.Invoke(pawn);
+        }
+
+        public static void PawnDestroy(Pawn pawn)
+        {
+            PawnDestroyEvent?.Invoke(pawn);
         }
 
         public static Dictionary<Color, List<Pawn>> Pawns = new Dictionary<Color, List<Pawn>>();
@@ -105,7 +111,11 @@ namespace PawnsAndGuns.Game.Pawns
                 .Join(transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack))
                 .Join(transform.DOScale(new Vector3(1, 1, 1), .5f).SetEase(Ease.InFlash))
                 .OnComplete(() => {
-                    if (cell.Pawn != null)
+                    if (cell == null)
+                    {
+                        Kill();
+                        return;
+                    } else if (cell.Pawn != null)
                     {
                         cell.Pawn.Kill();
                     } else if (_audioSource.isActiveAndEnabled)
@@ -249,7 +259,7 @@ namespace PawnsAndGuns.Game.Pawns
         {
             transform.DOPause();
             Pawns[Team].Remove(this);
-
+            PawnDestroy(this);
             Controller controller = Controller.GetController(Team);
             if (controller == null) return;
             controller.CanMove = true;

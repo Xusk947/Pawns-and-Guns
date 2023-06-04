@@ -113,34 +113,8 @@ namespace PawnsAndGuns.Controllers
             outCell = null;
             if (king == null) return false;
             if (king.cell == null) return false;
-            float minDistance = 999999f;
-            Vector2Int kingPosition = king.cell.Position;
 
-            for(int i = 0; i < pawn.MoveWays.Count; i++)
-            {
-                MoveWay moveWay = pawn.MoveWays[i];
-                for(int k = 1; k < moveWay.Length + 1; k++)
-                {
-                    int moveX = pawn.cell.globalX + moveWay.Way.x * k;
-                    int moveY = pawn.cell.globalY + moveWay.Way.y * k;
-
-                    Cell cell = Gameboard.Instance.GetCell(moveX, moveY);
-                    if (cell == null) continue;
-                    if (outCell == null)
-                    {
-                        outCell = cell;
-                    } else
-                    {
-                        float distance = cell.Position.SquareDistance(kingPosition);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance; 
-                            outCell = cell;
-
-                        }
-                    }
-                }
-            }
+            outCell = NearestToKing(pawn);
 
             return outCell != null;
         }
@@ -172,8 +146,7 @@ namespace PawnsAndGuns.Controllers
                         if (distance < minDistance)
                         {
                             minDistance = distance;
-                            outCell = NearestToKing(pawn.MoveWays, cell);
-                            Debug.Log(cell == outCell);
+                            outCell = cell;
                         }
                     }
                 }
