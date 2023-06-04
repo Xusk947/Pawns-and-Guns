@@ -105,8 +105,11 @@ namespace PawnsAndGuns.Controllers
             for(int i = 0; i < pawn.MoveWays.Count; i++)
             {
                 MoveWay moveWay = pawn.MoveWays[i];
-                maxX = moveWay.Way.x > maxX ? moveWay.Way.x : maxX;
-                maxY = moveWay.Way.y > maxY ? moveWay.Way.y : maxY;
+                for(int k = 1; k < moveWay.Length + 1; k++)
+                {
+                    maxX = moveWay.Way.x * k > maxX ? moveWay.Way.x * k: maxX;
+                    maxY = moveWay.Way.y * k > maxY ? moveWay.Way.y * k: maxY;
+                }
             }
 
             Cell closestCell = null;
@@ -141,7 +144,9 @@ namespace PawnsAndGuns.Controllers
         {
             MoveWay moveWay = pawn.MoveWays[Random.Range(0, pawn.MoveWays.Count)];
 
-            pawn.MoveTo(moveWay.Way.x + pawn.cell.globalX, moveWay.Way.y + pawn.cell.globalY);
+            int length = Random.Range(0, moveWay.Length);
+
+            pawn.MoveTo(moveWay.Way.x * length + pawn.cell.globalX, moveWay.Way.y * length + pawn.cell.globalY);
         }
     }
 }

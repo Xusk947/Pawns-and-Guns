@@ -9,7 +9,7 @@ namespace PawnsAndGuns.Game.Cells
     {
         public bool Selected;
         public Chunk Chunk;
-
+        public bool Spawned;
         public Vector2Int Position { get { return new Vector2Int(x, y); } }
 
         public int x;
@@ -33,6 +33,9 @@ namespace PawnsAndGuns.Game.Cells
             SpriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             SpriteRenderer.sortingLayerName = "Board";
             SpriteRenderer.sprite = Content.TileSprite;
+
+            transform.localScale = Vector3.zero;
+            transform.DOScale(new Vector3(1, 1, 1), .25f).OnComplete(() => { Spawned = true; });
         }
 
         public void Select()

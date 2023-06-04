@@ -3,6 +3,7 @@ using PawnsAndGuns.Game.Cells;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using XCore;
 
 namespace PawnsAndGuns.Game
 {
@@ -12,10 +13,8 @@ namespace PawnsAndGuns.Game
         private void Awake()
         {
             Instance = this;
-
-            new PlayerController(Gameboard.Instance.PlayerTeam);
-            new AIController(Gameboard.Instance.EnemyTeam);
         }
+
         private void Update()
         {
             List<Controller> controllers = Controller.GetAllControllers();
@@ -32,6 +31,7 @@ namespace PawnsAndGuns.Game
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Application.Quit();
+                GameSettings.Save();
             }
         }
     }

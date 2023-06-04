@@ -9,6 +9,7 @@ namespace PawnsAndGuns.Game.Cells
         protected override void Awake()
         {
             SpriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer.sortingLayerName = "Board";
             SpriteRenderer.sprite = Content.WallSprite;
         }
         public override bool CanAcceptPawn(Pawn pawn)

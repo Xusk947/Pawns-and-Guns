@@ -143,5 +143,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca036ff375a40f242b643f9333f3efed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: {fileID: 11400000, guid: 6e0c95d374fafea4aa1c26c0b8c25434, type: 2}
+  _type: {fileID: 11400000, guid: 13d9b50fa6a97794889ccc30f68cbce3, type: 2}
   cell: {fileID: 0}
+  Killed: 0

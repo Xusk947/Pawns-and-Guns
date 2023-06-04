@@ -82,6 +82,7 @@ namespace PawnsAndGuns.Game.Pawns
                     }
                     // If target cell doesn't have a Pawn and pawn can only eat on this direction continue
                     if (targetCell.Pawn == null && moveWay.CanEatOnly) return false;
+                    if (cellToCheck is WallCell) break;
                     if (IsAvailableCell(targetCell)) return true;
                 }
             }
@@ -94,8 +95,9 @@ namespace PawnsAndGuns.Game.Pawns
 
             controller.CanMove = false;
 
-            this.cell.Pawn = null;
-            Cell cell = Gameboard.Instance.GetCell(x, y);
+            cell.Pawn = null;
+            transform.parent = Gameboard.Instance.transform;
+            cell = Gameboard.Instance.GetCell(x, y);
             var sequence = DOTween.Sequence();
 
             _audioSource.clip = Content.AudioClipMove;
@@ -128,7 +130,11 @@ namespace PawnsAndGuns.Game.Pawns
             settings.startColor = new ParticleSystem.MinMaxGradient(Team);
             particleSystem.transform.position = transform.position - new Vector3(0, .5f, 0);
 
-            cell.Pawn = null;
+            // Because cell can be destroyed
+            if (cell != null)
+            {
+                cell.Pawn = null;
+            }
 
             Killed = true;
 
@@ -164,6 +170,7 @@ namespace PawnsAndGuns.Game.Pawns
                 {
                     Cell moveCell = Gameboard.Instance.GetCell(cell.globalX + moveWay.Way.x * k, cell.globalY + moveWay.Way.y * k);
                     // check if cell is available 
+                    if (moveCell is WallCell) break;
                     if (IsAvailableCell(moveCell))
                     {
                         if (moveCell.Pawn == null && moveWay.CanEatOnly) continue;
@@ -239,8 +246,10 @@ namespace PawnsAndGuns.Game.Pawns
         {
             transform.DOPause();
             Pawns[Team].Remove(this);
+
             Controller controller = Controller.GetController(Team);
-            if (controller != null) controller.CanMove = true;
+            if (controller == null) return;
+            controller.CanMove = true;
         }
     }
 

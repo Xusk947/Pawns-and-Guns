@@ -25,6 +25,7 @@ namespace PawnsAndGuns.Controllers
 
         public static Controller GetController(Color team)
         {
+            if (!Controllers.ContainsKey(team)) return null;
             return Controllers[team];
         }
 

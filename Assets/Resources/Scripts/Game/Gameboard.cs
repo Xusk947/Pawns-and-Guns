@@ -2,6 +2,7 @@ using PawnsAndGuns.Game.Cells;
 using PawnsAndGuns.Game.Pawns;
 using System;
 using UnityEngine;
+using XCore;
 
 namespace PawnsAndGuns.Game
 {
@@ -30,7 +31,7 @@ namespace PawnsAndGuns.Game
             }
         }
 
-        public void SetCell<T>(int x, int y) where T : Cell
+        public T SetCell<T>(int x, int y) where T : Cell
         {
             Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
             Chunk chunk = Chunk.GetChunk(chunkPos);
@@ -41,11 +42,31 @@ namespace PawnsAndGuns.Game
 
             T cell = gameObject.AddComponent<T>();
 
+
             bool isWhite = (x + y) % 2 == 0;
             cell.SpriteRenderer.material.color = isWhite ? WhiteTileColor : BlackTileColor;
-            cell.SpriteRenderer.material.color -= new Color(0, 0, 0, .2f);
+
+            cell.SpriteRenderer.material.color -= new Color(0, 0, 0, .5f);
 
             chunk.SetCell(tilePos.x, tilePos.y, cell);
+
+            return cell;
+        }
+
+        public void RemoveCell(int x, int y)
+        {
+            // Convert x, y  to tile and chunk positions
+            Vector2Int chunkPos = new Vector2Int(Mathf.FloorToInt(x / (float)Chunk.CHUNK_SIZE.x), Mathf.FloorToInt(y / (float)Chunk.CHUNK_SIZE.y));
+            Chunk chunk = Chunk.GetChunk(chunkPos);
+            Vector2Int tilePos = new Vector2Int((x % Chunk.CHUNK_SIZE.x + Chunk.CHUNK_SIZE.x) % Chunk.CHUNK_SIZE.x, (y % Chunk.CHUNK_SIZE.y + Chunk.CHUNK_SIZE.y) % Chunk.CHUNK_SIZE.y);
+
+            Cell cell = chunk.GetCell(tilePos.x, tilePos.y);
+            // Check if chunk have a cell on x, y coordinates
+            if (cell == null) return;
+            // Destroy Pawn on a Cell tile
+            if (cell.Pawn != null) cell.Pawn.Kill();
+            // Set null value to cell at x, y
+            Destroy(cell.gameObject);
         }
 
         public Cell GetCell(int x, int y)
@@ -85,27 +106,6 @@ namespace PawnsAndGuns.Game
         private void Awake()
         {
             Instance = this;
-
-            Content.Load();
-
-            int width = 16;
-            int height = 16;
-
-            for (int x = -width; x < width; x++)
-            {
-                for (int y = -height; y < height; y++)
-                {
-                    SetCell<Cell>(x, y);
-                }
-            }
-            SetCell<CheckPointCell>(0, 0);
-
-            SetPawn(1, 1, EnemyTeam, Content.Pawn);
-            SetPawn(3, 1, EnemyTeam, Content.Knight);
-            SetPawn(5, 1, EnemyTeam, Content.Rook);
-            SetPawn(7, 1, EnemyTeam, Content.Bishop);
-            SetPawn(9, 1, EnemyTeam, Content.Queen);
-            SetPawn(11, 1, EnemyTeam, Content.King);
         }
 
         private void Start()

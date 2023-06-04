@@ -13,6 +13,7 @@ namespace PawnsAndGuns.Game.Cells
         }
         public void SpawnKing()
         {
+            if (!Spawned) return;
             Pawn king = Instantiate(Content.King);
             king.Team = Gameboard.Instance.PlayerTeam;
             king.name = "King";

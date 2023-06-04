@@ -12,10 +12,11 @@ namespace PawnsAndGuns
         public static Sprite TileSprite { get; private set; }
 
         public static TextMeshProUGUI TextTutorial { get; private set; }
-        public static TextMeshProUGUI TextMoveAlongTheBoard { get; private set; }
-        public static TextMeshProUGUI TextPawnAssign { get; private set; }
+        public static TextMeshProUGUI TextWalls { get; private set; }
+        public static TextMeshProUGUI TextSpaceMove { get; private set; }
         public static TextMeshProUGUI TextCheckPoint { get; private set; }
         public static TextMeshProUGUI TextPawnKill { get; private set; }
+        public static TextMeshProUGUI TutorialFinished { get; private set; }
 
         public static AudioClip AudioClipMove { get; private set; }
         public static AudioClip AudioClipKill { get; private set; }
@@ -40,10 +41,11 @@ namespace PawnsAndGuns
             WallSprite = sprites[1];
 
             TextTutorial = Resources.Load<TextMeshProUGUI>("Content/Texts/Controls");
-            TextMoveAlongTheBoard = Resources.Load<TextMeshProUGUI>("Content/Texts/MoveAlongTheBoard");
-            TextPawnAssign = Resources.Load<TextMeshProUGUI>("Content/Texts/HowToAssignPawns");
+            TextWalls = Resources.Load<TextMeshProUGUI>("Content/Texts/TextWalls");
+            TextSpaceMove = Resources.Load<TextMeshProUGUI>("Content/Texts/SpaceMove");
             TextCheckPoint = Resources.Load<TextMeshProUGUI>("Content/Texts/CheckPoint");
             TextPawnKill = Resources.Load<TextMeshProUGUI>("Content/Texts/PawnKill");
+            TutorialFinished = Resources.Load<TextMeshProUGUI>("Content/Texts/TutorialFinished");
 
             AudioClipKill = Resources.Load<AudioClip>("Content/Sounds/explosion");
             AudioClipMove = Resources.Load<AudioClip>("Content/Sounds/move");

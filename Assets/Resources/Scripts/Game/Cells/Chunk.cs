@@ -33,8 +33,11 @@ namespace PawnsAndGuns.Game.Cells
             if (!InBounds(cellX, cellY)) return;
             if (Cells[cellX, cellY] != null)
             {
-                Destroy(Cells[cellX, cellY]);
+                Destroy(Cells[cellX, cellY].gameObject);
+                Cells[cellX, cellY] = null;
             }
+            // Destroy cell if cell value is null else place a new cell
+            if (cell == null) return;
             cell.transform.SetParent(transform);
             cell.transform.position = transform.position + new Vector3(cellX, cellY);
             cell.x = cellX;
@@ -42,7 +45,6 @@ namespace PawnsAndGuns.Game.Cells
             cell.Chunk = this;
             Cells[cellX, cellY] = cell;
         }
-
         public void SetCell<T>(int cellX, int cellY) where T : Cell
         {
             if (!InBounds(cellX, cellY)) return;
@@ -50,6 +52,7 @@ namespace PawnsAndGuns.Game.Cells
             {
                 Destroy(Cells[cellX, cellY]);
             }
+
             T cell = new GameObject($"Cell({cellX}:{cellY})").AddComponent<T>();
             cell.transform.SetParent(transform);
             cell.transform.position = transform.position + new Vector3(cellX, cellY);
