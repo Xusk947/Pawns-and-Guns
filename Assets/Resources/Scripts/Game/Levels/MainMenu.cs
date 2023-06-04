@@ -2,6 +2,7 @@ using DG.Tweening;
 using PawnsAndGuns.Settings;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using XCore;
 using XCore.Extensions;
@@ -94,7 +95,14 @@ namespace PawnsAndGuns.Game.Levels
 
         private void OnButtonStartClick()
         {
-            print("Click");
+            if (GameSettings.GetValue("tutorialFinished"))
+            {
+                SceneManager.LoadScene(2);
+            }
+            else
+            {
+                SceneManager.LoadScene(1);
+            }
         }
 
         private void OnButtonSettingsClick()

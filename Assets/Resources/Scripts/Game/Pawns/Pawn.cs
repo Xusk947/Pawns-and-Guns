@@ -100,7 +100,6 @@ namespace PawnsAndGuns.Game.Pawns
             cell = Gameboard.Instance.GetCell(x, y);
             var sequence = DOTween.Sequence();
 
-            _audioSource.clip = Content.AudioClipMove;
 
             sequence
                 .Join(transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack))
@@ -109,8 +108,9 @@ namespace PawnsAndGuns.Game.Pawns
                     if (cell.Pawn != null)
                     {
                         cell.Pawn.Kill();
-                    } else
+                    } else if (_audioSource.isActiveAndEnabled)
                     {
+                        _audioSource.clip = Content.AudioClipMove;
                         _audioSource.Play();
                     }
 
@@ -140,8 +140,11 @@ namespace PawnsAndGuns.Game.Pawns
 
             var sequence = DOTween.Sequence();
 
-            _audioSource.clip = Content.AudioClipKill;
-            _audioSource.PlayDelayed(.1f);
+            if (_audioSource.isActiveAndEnabled)
+            {
+                _audioSource.clip = Content.AudioClipKill;
+                _audioSource.PlayDelayed(.1f);
+            }
 
             sequence
                 .Join(transform.DOShakeRotation(1.5f).SetEase(Ease.InOutBack))

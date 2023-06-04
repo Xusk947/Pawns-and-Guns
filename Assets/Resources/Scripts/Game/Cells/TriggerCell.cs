@@ -1,5 +1,5 @@
 using PawnsAndGuns.Game.Pawns;
-using System.Drawing;
+using UnityEngine;
 
 namespace PawnsAndGuns.Game.Cells
 {
@@ -13,7 +13,7 @@ namespace PawnsAndGuns.Game.Cells
         {
             base.SetPawn(pawn);
 
-            if (ReactsOn != default && !ReactsOn.Equals(pawn.Team)) return;
+            if (ReactsOn != default && pawn != null && !ReactsOn.Equals(pawn.Team)) return;
 
             if (pawn != null)
             {

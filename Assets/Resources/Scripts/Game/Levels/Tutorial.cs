@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using XCore;
 
 namespace PawnsAndGuns.Game.Levels
 {
@@ -161,6 +163,7 @@ namespace PawnsAndGuns.Game.Levels
             cell.pawnMoveInside = (Pawn pawn) => 
             {
                 RemoveCells(cells);
+                SpawnFinishPoint(cell.globalX, cell.globalY);
                 ShowText(text);
             };
             cell.pawnMoveOutside = (Pawn pawn) => 
@@ -169,8 +172,21 @@ namespace PawnsAndGuns.Game.Levels
             };
 
             Gameboard.Instance.SetPawn(x, y + 2, Gameboard.Instance.EnemyTeam, Content.Pawn);
+        }
 
-
+        private void SpawnFinishPoint(int x, int y)
+        {
+            Gameboard.Instance.SetCell<Cell>(x, y + 1);
+            Gameboard.Instance.SetCell<Cell>(x, y + 2);
+            Gameboard.Instance.SetCell<Cell>(x, y + 3);
+            TriggerCell cell = Gameboard.Instance.SetCell<TriggerCell>(x, y + 4);
+            cell.pawnMoveInside = (Pawn pawn) =>
+            {
+                GameSettings.SetBool("tutorialFinished", true);
+                GameSettings.Save();
+                DOTween.KillAll();
+                SceneManager.LoadScene(2);
+            };
         }
 
         private void RemoveCells(List<Cell> cells)

@@ -2,9 +2,11 @@ using PawnsAndGuns.Game;
 using PawnsAndGuns.Game.Cells;
 using PawnsAndGuns.Game.Pawns;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using XCore.Extensions;
 
 namespace PawnsAndGuns.Controllers
 {
@@ -19,7 +21,8 @@ namespace PawnsAndGuns.Controllers
         private List<Pawn> _pawns;
         private float MoveTime;
         private float MoveTimer = 0;
-        public AIController(Color team, float moveTime = 1.5f)
+        private Pawn _currentPawn;
+        public AIController(Color team, float moveTime = 1f)
         {
             _team = team;
             _pawns = new List<Pawn>();
@@ -41,31 +44,36 @@ namespace PawnsAndGuns.Controllers
 
             if (_pawns.Count <= 0) UpdateControllablePawns();
             if (_pawns.Count == 0) return;
-            _canMove = false;
 
             Pawn pawn = _pawns[0];
-
-            if (pawn == null || pawn.IsDestroyed() || pawn.Killed)
+            if (pawn == null || pawn.IsDestroyed() || pawn.Killed || pawn.cell == null)
             {
                 UpdateControllablePawns();
                 _pawns.Remove(pawn);
                 return;
             };
 
-            Cell outCell;
-            // Try to hit any aviable Pawn
-            if (CanHitPawn(pawn, out outCell))
-            {
-                pawn.MoveTo(outCell.globalX, outCell.globalY);
-            } else if (CanMoveCloseToEnemyPawn(pawn, out outCell)) 
-            {
-                pawn.MoveTo(outCell.globalX, outCell.globalY);
-            } else
-            {
-                MoveRandomly(pawn);
-            }
+            _currentPawn = pawn;
 
-            _pawns.Remove(pawn);
+            UpdateCurrentPawn();
+        }
+
+        private void UpdateCurrentPawn()
+        {
+            Cell cell;
+            if (CanHitPawn(_currentPawn, out cell))
+            {
+                _canMove = false;
+                _currentPawn.MoveTo(cell.globalX, cell.globalY);
+                _pawns.Remove(_currentPawn);
+            }
+            else if (CanMoveCloseToEnemyPawn(_currentPawn, out cell))
+            {
+                if (cell == _currentPawn.cell) return;
+                _canMove = false;
+                _currentPawn.MoveTo(cell.globalX, cell.globalY);
+                _pawns.Remove(_currentPawn);
+            }
         }
 
         private void UpdateControllablePawns()
@@ -80,16 +88,18 @@ namespace PawnsAndGuns.Controllers
             for(int i = 0; i < pawn.MoveWays.Count; i++)
             {
                 MoveWay moveWay = pawn.MoveWays[i];
-                int moveX = pawn.cell.globalX + moveWay.Way.x;
-                int moveY = pawn.cell.globalY + moveWay.Way.y;
-
-                if (pawn.CanMoveAt(moveX, moveY))
+                for(int k = 1; k < moveWay.Length; k++)
                 {
-                    Cell moveCell = Gameboard.Instance.GetCell(moveX, moveY);
-                    if (moveCell.Pawn != null && moveCell.Pawn.Team != pawn.Team)
+                    int moveX = pawn.cell.globalX + moveWay.Way.x * k;
+                    int moveY = pawn.cell.globalY + moveWay.Way.y * k;
+                    if (pawn.CanMoveAt(moveX, moveY))
                     {
-                        cell = moveCell;
-                        return true;
+                        Cell moveCell = Gameboard.Instance.GetCell(moveX, moveY);
+                        if (moveCell.Pawn != null && moveCell.Pawn.Team != pawn.Team)
+                        {
+                            cell = moveCell;
+                            return true;
+                        }
                     }
                 }
             }
@@ -99,45 +109,113 @@ namespace PawnsAndGuns.Controllers
 
         private bool CanMoveCloseToEnemyPawn(Pawn pawn, out Cell outCell)
         {
-            int maxX = 0;
-            int maxY = 0;
+            Pawn king = Gameboard.Instance.King;
+            outCell = null;
+            if (king == null) return false;
+            if (king.cell == null) return false;
+            float minDistance = 999999f;
+            Vector2Int kingPosition = king.cell.Position;
 
             for(int i = 0; i < pawn.MoveWays.Count; i++)
             {
                 MoveWay moveWay = pawn.MoveWays[i];
                 for(int k = 1; k < moveWay.Length + 1; k++)
                 {
-                    maxX = moveWay.Way.x * k > maxX ? moveWay.Way.x * k: maxX;
-                    maxY = moveWay.Way.y * k > maxY ? moveWay.Way.y * k: maxY;
-                }
-            }
+                    int moveX = pawn.cell.globalX + moveWay.Way.x * k;
+                    int moveY = pawn.cell.globalY + moveWay.Way.y * k;
 
-            Cell closestCell = null;
-
-            for(int x = -maxX * 2; x < maxX * 2; x++)
-            {
-                for (int y = -maxY * 2; y < maxY * 2; y++)
-                {
-                    Cell cell = Gameboard.Instance.GetCell(pawn.cell.globalX, pawn.cell.globalY);
-                    if (cell.Pawn != null && cell.Pawn.Team != pawn.Team)
+                    Cell cell = Gameboard.Instance.GetCell(moveX, moveY);
+                    if (cell == null) continue;
+                    if (outCell == null)
                     {
-                        if (closestCell == null) closestCell = cell;
-                        else if (Vector2Int.Distance(pawn.cell.Position, cell.Position) < Vector2Int.Distance(pawn.cell.Position, closestCell.Position))
+                        outCell = cell;
+                    } else
+                    {
+                        float distance = cell.Position.SquareDistance(kingPosition);
+                        if (distance < minDistance)
                         {
-                            closestCell = cell;
+                            minDistance = distance; 
+                            outCell = cell;
+
                         }
                     }
                 }
             }
 
-            if (closestCell != null)
+            return outCell != null;
+        }
+
+        private Cell NearestToKing(Pawn pawn)
+        {
+            float minDistance = 999999f;
+            Vector2Int kingPosition = Gameboard.Instance.King.cell.Position;
+
+            Cell outCell = null;
+
+            for (int i = 0; i < pawn.MoveWays.Count; i++)
             {
-                outCell = closestCell;
-                return true;
+                MoveWay moveWay = pawn.MoveWays[i];
+                for (int k = 1; k < moveWay.Length + 1; k++)
+                {
+                    int moveX = pawn.cell.globalX + moveWay.Way.x * k;
+                    int moveY = pawn.cell.globalY + moveWay.Way.y * k;
+
+                    Cell cell = Gameboard.Instance.GetCell(moveX, moveY);
+                    if (cell == null) continue;
+                    if (outCell == null)
+                    {
+                        outCell = cell;
+                    }
+                    else
+                    {
+                        float distance = cell.Position.SquareDistance(kingPosition);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            outCell = NearestToKing(pawn.MoveWays, cell);
+                            Debug.Log(cell == outCell);
+                        }
+                    }
+                }
             }
 
-            outCell = null;
-            return false;
+            return outCell;
+        }
+
+        private Cell NearestToKing(List<MoveWay> moveWays, Cell based)
+        {
+            Vector2Int kingPosition = Gameboard.Instance.King.cell.Position;
+
+            Cell outCell = based;
+            float minDistance = based.Position.SquareDistance(kingPosition);
+
+            for (int i = 0; i < moveWays.Count; i++)
+            {
+                MoveWay moveWay = moveWays[i];
+                for (int k = 1; k < moveWay.Length + 1; k++)
+                {
+                    int moveX = based.globalX + moveWay.Way.x * k;
+                    int moveY = based.globalY + moveWay.Way.y * k;
+
+                    Cell cell = Gameboard.Instance.GetCell(moveX, moveY);
+                    if (cell == null) continue;
+                    if (outCell == null)
+                    {
+                        outCell = cell;
+                    }
+                    else
+                    {
+                        float distance = cell.Position.SquareDistance(kingPosition);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            outCell = cell;
+                        }
+                    }
+                }
+            }
+
+            return outCell;
         }
 
         private void MoveRandomly(Pawn pawn)
@@ -146,7 +224,33 @@ namespace PawnsAndGuns.Controllers
 
             int length = Random.Range(0, moveWay.Length);
 
-            pawn.MoveTo(moveWay.Way.x * length + pawn.cell.globalX, moveWay.Way.y * length + pawn.cell.globalY);
+            if (pawn.CanMoveAt(moveWay.Way.x * length + pawn.cell.globalX, moveWay.Way.y * length + pawn.cell.globalY))
+            {
+                pawn.MoveTo(moveWay.Way.x * length + pawn.cell.globalX, moveWay.Way.y * length + pawn.cell.globalY);
+            }
+        }
+
+        public void OnDrawGizmos()
+        {
+            Gizmos.color = Team;
+
+            if (_currentPawn != null)
+            {
+                Gizmos.DrawWireCube(_currentPawn.transform.position, new Vector3(1, 1));
+
+                Cell cell;
+
+                if (CanHitPawn(_currentPawn, out cell))
+                {
+                    Gizmos.color = cell.Pawn.Team;
+                    Gizmos.DrawWireCube(cell.transform.position, new Vector3(1, 1));
+                }
+                else if (CanMoveCloseToEnemyPawn(_currentPawn, out cell))
+                {
+                    Gizmos.color = Team - new Color(0, 0, 0, .5f);
+                    Gizmos.DrawCube(cell.transform.position, new Vector3(1, 1, 1));
+                }
+            }
         }
     }
 }
