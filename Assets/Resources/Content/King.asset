@@ -15,16 +15,16 @@ MonoBehaviour:
   Moves:
   - Way: {x: 1, y: 0}
     CanEatOnly: 0
-    Length: 1
+    Length: 2
   - Way: {x: 0, y: 1}
     CanEatOnly: 0
-    Length: 1
+    Length: 2
   - Way: {x: -1, y: 0}
     CanEatOnly: 0
-    Length: 1
+    Length: 2
   - Way: {x: 0, y: -1}
     CanEatOnly: 0
-    Length: 1
+    Length: 2
   - Way: {x: 1, y: 1}
     CanEatOnly: 0
     Length: 1

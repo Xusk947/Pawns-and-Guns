@@ -101,11 +101,12 @@ namespace PawnsAndGuns.Game.Pawns
 
             controller.CanMove = false;
 
+            _audioSource.enabled = true;
+
             cell.Pawn = null;
             transform.parent = Gameboard.Instance.transform;
             cell = Gameboard.Instance.GetCell(x, y);
             var sequence = DOTween.Sequence();
-
 
             sequence
                 .Join(transform.DOMove(cell.transform.position, .5f).SetEase(Ease.InBack))
@@ -147,14 +148,12 @@ namespace PawnsAndGuns.Game.Pawns
             }
 
             Killed = true;
+            Pawns[Team].Remove(this);
+            PawnDestroy(this);
 
             var sequence = DOTween.Sequence();
-
-            if (_audioSource.isActiveAndEnabled)
-            {
-                _audioSource.clip = Content.AudioClipKill;
-                _audioSource.PlayDelayed(.1f);
-            }
+            _audioSource.clip = Content.AudioClipKill;
+            _audioSource.Play();
 
             sequence
                 .Join(transform.DOShakeRotation(1.5f).SetEase(Ease.InOutBack))
@@ -258,8 +257,6 @@ namespace PawnsAndGuns.Game.Pawns
         private void OnDestroy()
         {
             transform.DOPause();
-            Pawns[Team].Remove(this);
-            PawnDestroy(this);
             Controller controller = Controller.GetController(Team);
             if (controller == null) return;
             controller.CanMove = true;

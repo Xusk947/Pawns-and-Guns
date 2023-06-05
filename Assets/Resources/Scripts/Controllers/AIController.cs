@@ -22,7 +22,7 @@ namespace PawnsAndGuns.Controllers
         private float MoveTime;
         private float MoveTimer = 0;
         private Pawn _currentPawn;
-        public AIController(Color team, float moveTime = 1f)
+        public AIController(Color team, float moveTime = 1.5f)
         {
             _team = team;
             _pawns = new List<Pawn>();
@@ -63,12 +63,22 @@ namespace PawnsAndGuns.Controllers
             Cell cell;
             if (CanHitPawn(_currentPawn, out cell))
             {
+                if (cell is TriggerCell)
+                {
+                    if ((cell as TriggerCell).ReactsOn != _currentPawn.Team) return;
+                };
+                if (cell is CheckPointCell) return;
                 _canMove = false;
                 _currentPawn.MoveTo(cell.globalX, cell.globalY);
                 _pawns.Remove(_currentPawn);
             }
             else if (CanMoveCloseToEnemyPawn(_currentPawn, out cell))
             {
+                if (cell is TriggerCell)
+                {
+                    if ((cell as TriggerCell).ReactsOn != _currentPawn.Team) return;
+                };
+                if (cell is CheckPointCell) return;
                 if (cell == _currentPawn.cell) return;
                 _canMove = false;
                 _currentPawn.MoveTo(cell.globalX, cell.globalY);
@@ -136,6 +146,7 @@ namespace PawnsAndGuns.Controllers
 
                     Cell cell = Gameboard.Instance.GetCell(moveX, moveY);
                     if (cell == null) continue;
+                    if (!pawn.CanMoveAt(moveX, moveY)) continue;
                     if (outCell == null)
                     {
                         outCell = cell;

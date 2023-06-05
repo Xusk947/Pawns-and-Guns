@@ -13,12 +13,46 @@ namespace XCore
         private static readonly string SAVE_PATH = Application.persistentDataPath;
 
         private static SerializableDictionary<string, bool> _boolDictionary = new SerializableDictionary<string, bool>();
+        private static SerializableDictionary<string, float> _floatDictionary = new SerializableDictionary<string, float>();
+        private static SerializableDictionary<string, int> _intDictionary = new SerializableDictionary<string, int>();
         public static void SetBool(string key, bool value)
         {
             _boolDictionary[key] = value;
         }
 
-        public static bool GetValue(string key)
+        public static void SetFloat(string key, float value)
+        {
+            _floatDictionary[key] = value;
+        }
+
+        public static void SetInt(string key, int value)
+        {
+            _intDictionary[key] = value;
+        }
+
+        public static int GetInt(string key)
+        {
+            int value = 0;
+
+            if (_intDictionary.ContainsKey(key))
+            {
+                value = _intDictionary[key];
+            }
+            return value;
+        }
+
+        public static float GetFloat(string key) {
+            float value = 0f;
+
+            if (_floatDictionary.ContainsKey(key))
+            {
+                value = _floatDictionary[key];
+            }
+            
+            return value;
+        }
+
+        public static bool GetBool(string key)
         {
             bool value = false;
 
@@ -32,11 +66,15 @@ namespace XCore
         
         public static void Load()
         {
-            _boolDictionary.AddRange(LoadSerializableDictionary<string, bool>("settings.dat"));
+            _boolDictionary.AddRange(LoadSerializableDictionary<string, bool>("settings_b.dat"));
+            _intDictionary.AddRange(LoadSerializableDictionary<string, int>("settings_i.dat"));
+            _floatDictionary.AddRange(LoadSerializableDictionary<string, float>("settings_f.dat"));
         }
         public static void Save()
         {
-            SaveSerializableDictionary(_boolDictionary, "settings.dat");
+            SaveSerializableDictionary(_boolDictionary, "settings_b.dat");
+            SaveSerializableDictionary(_intDictionary, "settings_i.dat");
+            SaveSerializableDictionary(_floatDictionary, "settings_f.dat");
         }
         public static SerializableDictionary<TKey, TValue> LoadSerializableDictionary<TKey, TValue>(string filename)
         {
@@ -53,7 +91,6 @@ namespace XCore
             }
             else
             {
-                Debug.LogWarning("Save file not found.");
                 dictionary = new SerializableDictionary<TKey, TValue>();
             }
 
@@ -69,8 +106,6 @@ namespace XCore
             {
                 formatter.Serialize(fileStream, dictionary);
             }
-
-            Debug.Log($"File saved at: {filePath}");
         }
     }
 }

@@ -1,3 +1,4 @@
+using PawnsAndGuns.Game;
 using PawnsAndGuns.Game.Pawns;
 using System.Collections.Generic;
 using TMPro;
@@ -7,6 +8,7 @@ namespace PawnsAndGuns
 {
     public static class Content
     {
+        public static bool Loaded = false;
         public static ParticleSystem PawnDeath { get; private set; }
         public static Sprite Highlight { get; private set; }
         public static Sprite WallSprite { get; private set; }
@@ -19,9 +21,12 @@ namespace PawnsAndGuns
         public static TextMeshProUGUI TextPawnKill { get; private set; }
         public static TextMeshProUGUI TutorialFinished { get; private set; }
 
+        public static FloatText FloatText { get; private set; }
+
         public static AudioClip AudioClipMove { get; private set; }
         public static AudioClip AudioClipKill { get; private set; }
         public static AudioClip TextAppear { get; private set; }
+
 
 
         public static Pawn Pawn, Rook, Knight, Bishop, Queen, King;
@@ -58,9 +63,12 @@ namespace PawnsAndGuns
             TextPawnKill = Resources.Load<TextMeshProUGUI>("Content/Texts/PawnKill");
             TutorialFinished = Resources.Load<TextMeshProUGUI>("Content/Texts/TutorialFinished");
 
+            FloatText = Resources.Load<FloatText>("Content/Texts/FloatText");
+
             AudioClipKill = Resources.Load<AudioClip>("Content/Sounds/explosion");
             AudioClipMove = Resources.Load<AudioClip>("Content/Sounds/move");
             TextAppear = Resources.Load<AudioClip>("Content/Sounds/text-appear");
+            Loaded = true;
         }
     }
 }

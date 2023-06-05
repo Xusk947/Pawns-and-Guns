@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using XCore;
 using XCore.Extensions;
 
 namespace PawnsAndGuns.Game.Levels
@@ -17,10 +18,16 @@ namespace PawnsAndGuns.Game.Levels
         private Vector2Int _nextTriggerCellPosition;
         private bool CanSpawn = true;
 
+        private int _score = 0;
+        private int _highScore;
         private void Start()
         {
             new PlayerController(Gameboard.Instance.PlayerTeam);
             new AIController(Gameboard.Instance.EnemyTeam);
+            Pawn.PawnDestroyEvent += OnPawnKill;
+
+            _highScore = GameSettings.GetInt("highScore");
+            
             CreateSpawn();
         }
 
@@ -55,12 +62,13 @@ namespace PawnsAndGuns.Game.Levels
                 for (int i = 0; i < UnityEngine.Random.Range(1, 3); i++)
                 {
                     Pawn pawnToSpawn = Instantiate(Content.playablePawns.Random());
+                    pawnToSpawn.gameObject.SetActive(false);
                     pawnsToSpawn.Add(pawnToSpawn);
                 }
                 int size = UnityEngine.Random.Range(5, 10);
-                _lastSpawnedCells = SpawnRect(cell.globalX + size / 2, cell.globalY + size / 2 + 1, size, pawnsToSpawn);
+                _lastSpawnedCells = SpawnRect(cell.globalX, cell.globalY + size / 2 + 1, size, pawnsToSpawn);
 
-                Vector2Int nextTriggerCellPos = new Vector2Int(cell.globalX + UnityEngine.Random.Range(0, size), cell.globalY + size);
+                Vector2Int nextTriggerCellPos = new Vector2Int(cell.globalX + UnityEngine.Random.Range(-size/2, size/2), cell.globalY + size);
 
                 if (Gameboard.Instance.GetCell(nextTriggerCellPos.x, nextTriggerCellPos.y) != null)
                 {
@@ -71,7 +79,7 @@ namespace PawnsAndGuns.Game.Levels
 
             cell.pawnMoveOutside = (Pawn pawn) => 
             { 
-                Destroy(cell.gameObject);
+                _lastSpawnedCells.Add(Gameboard.Instance.SetCell<CheckPointCell>(cell.globalX, cell.globalY));
                 CanSpawn = true;
             };
         }
@@ -108,11 +116,42 @@ namespace PawnsAndGuns.Game.Levels
                 {
                     await Task.Delay(TimeSpan.FromSeconds(.1f));
                     Pawn pawn = pawnToSpawn[i];
+                    pawn.gameObject.SetActive(true);
                     Cell spawnCell = Gameboard.Instance.GetCell(x + UnityEngine.Random.Range(-size / 2, size / 2), y + UnityEngine.Random.Range(-size / 2, size / 2));
                     spawnCell.Pawn = pawn;
                     pawn.Team = Gameboard.Instance.EnemyTeam;
                 }
             }
+        }
+
+        private void OnPawnKill(Pawn pawn)
+        {
+            if (pawn.Team == Gameboard.Instance.PlayerTeam) return;
+            _score += 1;
+            Score.Instance?.SetScore(_score);
+            print(_score + " : " + _highScore);
+            if (_score > _highScore)
+            {
+                if (_highScore != -1)
+                {
+                    print("New Record");
+                    _highScore = -1;
+                }
+                GameSettings.SetInt("highScore", _score);
+            }
+            print(Pawn.Pawns[pawn.Team].Count);
+            if (Pawn.Pawns[pawn.Team].Count <= 0)
+            {
+                FloatText floatText = FloatText.Spawn();
+                floatText.Text.text = "Nice Job!";
+                floatText.transform.position = pawn.transform.position;
+                floatText.Activate();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            GameSettings.Save();
         }
         private void Update()
         {
@@ -123,6 +162,11 @@ namespace PawnsAndGuns.Game.Levels
                     SpawnBaseRoom(_lastSpawnedCells);
                 }
             }
+        }
+
+        private void OnDestroy()
+        {
+            Pawn.PawnDestroyEvent -= OnPawnKill;
         }
     }
 }

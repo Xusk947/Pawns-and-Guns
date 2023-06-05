@@ -36,11 +36,11 @@ namespace PawnsAndGuns.Game.Levels
 
         private void SetupSettings()
         {
-            Bloom.isOn = GameSettings.GetValue("bloom");
-            LensDistortion.isOn = GameSettings.GetValue("lensDistortion");
-            Vignette.isOn = GameSettings.GetValue("vignette");
+            Bloom.isOn = GameSettings.GetBool("bloom");
+            LensDistortion.isOn = GameSettings.GetBool("lensDistortion");
+            Vignette.isOn = GameSettings.GetBool("vignette");
 
-            print(GameSettings.GetValue("bloom"));
+            print(GameSettings.GetBool("bloom"));
             print(VolumeController.Instance);
             VolumeController.Instance?.ToggleComponent<Bloom>(Bloom.isOn);
             VolumeController.Instance?.ToggleComponent<LensDistortion>(LensDistortion.isOn);
@@ -95,7 +95,7 @@ namespace PawnsAndGuns.Game.Levels
 
         private void OnButtonStartClick()
         {
-            if (GameSettings.GetValue("tutorialFinished"))
+            if (GameSettings.GetBool("tutorialFinished"))
             {
                 SceneManager.LoadScene(2);
             }

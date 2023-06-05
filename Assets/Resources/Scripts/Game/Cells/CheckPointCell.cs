@@ -35,5 +35,10 @@ namespace PawnsAndGuns.Game.Cells
             if (pawn == null) return;
             if (pawn == Gameboard.Instance.King) LastCheckPoint = this;
         }
+
+        private void OnDestroy()
+        {
+            LastCheckPoint = null;
+        }
     }
 }

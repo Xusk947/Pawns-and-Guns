@@ -43,7 +43,9 @@ namespace PawnsAndGuns.Game
             T cell = gameObject.AddComponent<T>();
 
 
-            bool isWhite = (x + y) % 2 == 0;
+            bool isWhite = ((x + y) % 2 == 0)
+                || typeof(T) == typeof(TriggerCell)
+                || typeof(T) == typeof(CheckPointCell);
             cell.SpriteRenderer.material.color = isWhite ? WhiteTileColor : BlackTileColor;
 
             cell.SpriteRenderer.material.color -= new Color(0, 0, 0, .5f);
@@ -106,6 +108,7 @@ namespace PawnsAndGuns.Game
         private void Awake()
         {
             Instance = this;
+            if (!Content.Loaded) Content.Load();
         }
 
         private void Start()
